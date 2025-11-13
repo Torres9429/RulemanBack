@@ -1,9 +1,9 @@
 package utez.edu.mx.ruleman.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.util.Date;
 import java.util.Set;
 
@@ -13,42 +13,52 @@ public class Vehiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "marca", columnDefinition = "VARCHAR(30)")
     private String marca;
+
     @Column(name = "modelo", columnDefinition = "VARCHAR(50)")
     private String modelo;
-    @Column(name = "numeroSerie", columnDefinition = "VARCHAR(20)")
+
+    @Column(name = "numeroSerie", columnDefinition = "VARCHAR(20)", nullable = false, unique = true)
     private String numeroSerie;
-    @Column(name = "placa", columnDefinition = "VARCHAR(15)")
+
+    @Column(name = "placa", columnDefinition = "VARCHAR(15)", nullable = false, unique = true)
     private String placa;
+
+    @Column(name = "comentario", columnDefinition = "VARCHAR(50)")
+    private String comentario;
+
     @Column(name = "estatus", columnDefinition = "BOOL DEFAULT TRUE")
     private boolean estatus;
+
     @CreationTimestamp
-    @Column(name = "fechaCreacion",columnDefinition = "TIMESTAMP DEFAULT NOW()")
+    @Column(name = "fechaCreacion", columnDefinition = "TIMESTAMP DEFAULT NOW()", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaCreacion;
+
     @UpdateTimestamp
-    @Column(name = "ultimaActualizacion",columnDefinition = "TIMESTAMP DEFAULT NOW()")
+    @Column(name = "ultimaActualizacion", columnDefinition = "TIMESTAMP DEFAULT NOW()")
     @Temporal(TemporalType.TIMESTAMP)
     private Date ultimaActualizacion;
-    @ManyToOne(fetch = FetchType.EAGER)
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
-    @ManyToMany(mappedBy = "vehiculos")
+
+    @OneToMany(mappedBy = "vehiculo")
+    @JsonIgnore
     private Set<Servicio> servicios;
 
     public Vehiculo() {
     }
 
-    public Vehiculo(Long id, String marca, String modelo, String numeroSerie, String placa, boolean estatus, Usuario usuario, Set<Servicio> servicios) {
-        this.id = id;
+    public Vehiculo(String marca, String modelo, String numeroSerie, String placa, Usuario usuario) {
         this.marca = marca;
         this.modelo = modelo;
         this.numeroSerie = numeroSerie;
         this.placa = placa;
-        this.estatus = estatus;
         this.usuario = usuario;
-        this.servicios = servicios;
     }
 
     public Long getId() {
@@ -91,12 +101,36 @@ public class Vehiculo {
         this.placa = placa;
     }
 
+    public String getComentario() {
+        return comentario;
+    }
+
+    public void setComentario(String comentario) {
+        this.comentario = comentario;
+    }
+
     public boolean isEstatus() {
         return estatus;
     }
 
     public void setEstatus(boolean estatus) {
         this.estatus = estatus;
+    }
+
+    public Date getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(Date fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public Date getUltimaActualizacion() {
+        return ultimaActualizacion;
+    }
+
+    public void setUltimaActualizacion(Date ultimaActualizacion) {
+        this.ultimaActualizacion = ultimaActualizacion;
     }
 
     public Usuario getUsuario() {

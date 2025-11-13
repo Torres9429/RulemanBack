@@ -1,7 +1,7 @@
 package utez.edu.mx.ruleman.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.util.Set;
 
 @Entity
@@ -10,11 +10,15 @@ public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "nombre", columnDefinition = "VARCHAR(20)")
     private String nombre;
+
     @Column(name = "descripcion", columnDefinition = "VARCHAR(100)")
     private String descripcion;
-    @OneToMany(mappedBy = "rolId")
+
+    @OneToMany(mappedBy = "rol")
+    @JsonIgnore
     private Set<Usuario> usuarios;
 
     public Rol() {

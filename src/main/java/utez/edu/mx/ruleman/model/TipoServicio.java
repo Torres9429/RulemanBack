@@ -1,7 +1,8 @@
 package utez.edu.mx.ruleman.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import java.util.Set;
 
 @Entity
 @Table(name = "tipo_servicio")
@@ -9,20 +10,24 @@ public class TipoServicio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "El nombre es obligatorio")
-    @Column(name = "nombre", columnDefinition = "VARCHAR(50)")
+
+    @Column(name = "nombre", columnDefinition = "VARCHAR(50)", nullable = false)
     private String nombre;
-    @NotBlank(message = "La descripción es obligatoria")
-    @Column(name = "descripcion", columnDefinition = "VARCHAR(70)")
+
+    @Column(name = "descripcion", columnDefinition = "VARCHAR(70)", nullable = false)
     private String descripcion;
+
     @Column(name = "estatus", columnDefinition = "BOOL DEFAULT TRUE")
     private boolean estatus;
+
+    @OneToMany(mappedBy = "tipoServicio")
+    @JsonIgnore
+    private Set<Servicio> servicios;
 
     public TipoServicio() {
     }
 
-    public TipoServicio(Long id, String nombre, String descripcion, boolean estatus) {
-        this.id = id;
+    public TipoServicio(String nombre, String descripcion, boolean estatus) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.estatus = estatus;
@@ -58,5 +63,13 @@ public class TipoServicio {
 
     public void setEstatus(boolean estatus) {
         this.estatus = estatus;
+    }
+
+    public Set<Servicio> getServicios() {
+        return servicios;
+    }
+
+    public void setServicios(Set<Servicio> servicios) {
+        this.servicios = servicios;
     }
 }

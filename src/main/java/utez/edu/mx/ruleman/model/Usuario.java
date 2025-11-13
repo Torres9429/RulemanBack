@@ -2,12 +2,8 @@ package utez.edu.mx.ruleman.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.util.Date;
 import java.util.Set;
 
@@ -17,76 +13,59 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "El nombre es obligatorio")
-    @Column(name = "nombre", columnDefinition = "VARCHAR(50)")
+
+    @Column(name = "nombre", columnDefinition = "VARCHAR(50)", nullable = false)
     private String nombre;
-    @NotBlank(message = "Los apellidos son obligatorios")
-    @Column(name = "apellidos", columnDefinition = "VARCHAR(50)")
+
+    @Column(name = "apellidos", columnDefinition = "VARCHAR(50)", nullable = false)
     private String apellidos;
-    @Email(message = "Debe ser un correo válido")
-    @NotBlank(message = "El correo es obligatorio")
-    @Column(name = "correo", columnDefinition = "VARCHAR(50)", unique = true)
+
+    @Column(name = "numeroTelefono", columnDefinition = "VARCHAR(10)")
+    private String numeroTelefono;
+
+    @Column(name = "correo", columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
     private String correo;
-    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
+
     @Column(name = "contrasena", columnDefinition = "VARCHAR(255)")
     private String contrasena;
+
     @Column(name = "debeCambiarContrasena", columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean debeCambiarContrasena;
-    @Column(name = "estatus", columnDefinition = "BOOL DEFAULT TRUE")
-    private boolean estatus = true;
 
-    //Estos campos no tienen ni getter ni setter
+    @Column(name = "estatus", columnDefinition = "BOOL DEFAULT TRUE")
+    private boolean estatus;
+
     @CreationTimestamp
-    @Column(name = "fechaCreacion",columnDefinition = "TIMESTAMP DEFAULT NOW()")
+    @Column(name = "fechaCreacion", columnDefinition = "TIMESTAMP DEFAULT NOW()", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaCreacion;
+
     @UpdateTimestamp
-    @Column(name = "ultimaActualizacion",columnDefinition = "TIMESTAMP DEFAULT NOW()")
+    @Column(name = "ultimaActualizacion", columnDefinition = "TIMESTAMP DEFAULT NOW()")
     @Temporal(TemporalType.TIMESTAMP)
     private Date ultimaActualizacion;
-    @ManyToOne(fetch = FetchType.EAGER) // EAGER para que siempre cargue el rol con el usuario
-    @JoinColumn(name = "rol_id", nullable = false) // Así se llamará la clave foránea en la tabla usuario
-    private Rol rolId;
+
+    @ManyToOne(fetch = FetchType.EAGER) // EAGER es bueno para roles
+    @JoinColumn(name = "rol_id", nullable = false)
+    private Rol rol;
+
     @OneToMany(mappedBy = "usuario")
     @JsonIgnore
     private Set<Vehiculo> vehiculos;
 
+    @OneToMany(mappedBy = "mecanico")
+    @JsonIgnore
+    private Set<Servicio> serviciosAsignados;
 
     public Usuario() {
     }
 
-    public Usuario(Long id, String nombre, String apellidos, String correo, String contrasena, Rol rolId) {
-        this.id = id;
+    public Usuario(String nombre, String apellidos, String correo, String contrasena, Rol rol) {
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.correo = correo;
         this.contrasena = contrasena;
-        this.rolId = rolId;
-    }
-
-    public Usuario(Long id, String nombre, String apellidos, String correo, String contrasena, boolean debeCambiarContrasena, boolean estatus, Date fechaCreacion, Date ultimaActualizacion, Rol rolId) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellidos = apellidos;
-        this.correo = correo;
-        this.contrasena = contrasena;
-        this.debeCambiarContrasena = debeCambiarContrasena;
-        this.estatus = estatus;
-        this.fechaCreacion = fechaCreacion;
-        this.ultimaActualizacion = ultimaActualizacion;
-        this.rolId = rolId;
-    }
-
-    public Usuario(Long id, String nombre, String apellidos, String correo, String contrasena, boolean debeCambiarContrasena, boolean estatus, Rol rolId, Set<Vehiculo> vehiculos) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellidos = apellidos;
-        this.correo = correo;
-        this.contrasena = contrasena;
-        this.debeCambiarContrasena = debeCambiarContrasena;
-        this.estatus = estatus;
-        this.rolId = rolId;
-        this.vehiculos = vehiculos;
+        this.rol = rol;
     }
 
     public Long getId() {
@@ -113,6 +92,14 @@ public class Usuario {
         this.apellidos = apellidos;
     }
 
+    public String getNumeroTelefono() {
+        return numeroTelefono;
+    }
+
+    public void setNumeroTelefono(String numeroTelefono) {
+        this.numeroTelefono = numeroTelefono;
+    }
+
     public String getCorreo() {
         return correo;
     }
@@ -127,14 +114,6 @@ public class Usuario {
 
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
-    }
-
-    public Rol getRolId() {
-        return rolId;
-    }
-
-    public void setRolId(Rol rolId) {
-        this.rolId = rolId;
     }
 
     public boolean isDebeCambiarContrasena() {
@@ -153,11 +132,43 @@ public class Usuario {
         this.estatus = estatus;
     }
 
+    public Date getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(Date fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public Date getUltimaActualizacion() {
+        return ultimaActualizacion;
+    }
+
+    public void setUltimaActualizacion(Date ultimaActualizacion) {
+        this.ultimaActualizacion = ultimaActualizacion;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
+    }
+
     public Set<Vehiculo> getVehiculos() {
         return vehiculos;
     }
 
     public void setVehiculos(Set<Vehiculo> vehiculos) {
         this.vehiculos = vehiculos;
+    }
+
+    public Set<Servicio> getServiciosAsignados() {
+        return serviciosAsignados;
+    }
+
+    public void setServiciosAsignados(Set<Servicio> serviciosAsignados) {
+        this.serviciosAsignados = serviciosAsignados;
     }
 }
