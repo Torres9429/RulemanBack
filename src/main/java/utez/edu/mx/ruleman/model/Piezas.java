@@ -15,8 +15,8 @@ public class Piezas {
     @Column(name = "costoUnitario", nullable = false)
     private int costoUnitario;
 
-    @Column(name = "precio", nullable = false)
-    private int precio;
+    @Column(name = "cantidad", nullable = false)
+    private int cantidad;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "servicio_id", nullable = false)
@@ -25,10 +25,10 @@ public class Piezas {
     public Piezas() {
     }
 
-    public Piezas(String nombre, int costoUnitario, int precio, Servicio servicio) {
+    public Piezas(String nombre, int costoUnitario, int cantidad, Servicio servicio) {
         this.nombre = nombre;
         this.costoUnitario = costoUnitario;
-        this.precio = precio;
+        this.cantidad = cantidad;
         this.servicio = servicio;
     }
 
@@ -56,12 +56,12 @@ public class Piezas {
         this.costoUnitario = costoUnitario;
     }
 
-    public int getPrecio() {
-        return precio;
+    public int getCantidad() {
+        return cantidad;
     }
 
-    public void setPrecio(int precio) {
-        this.precio = precio;
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
     }
 
     public Servicio getServicio() {
