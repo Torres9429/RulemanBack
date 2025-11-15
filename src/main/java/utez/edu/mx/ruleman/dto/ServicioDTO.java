@@ -20,11 +20,11 @@ public class ServicioDTO {
     @DecimalMin(value = "0.0", message = "El costo total debe ser mayor o igual a cero")
     private Double costoTotal;
 
-    @Size(max = 50, message = "El comentario no puede exceder 50 caracteres")
+    @Size(max = 100, message = "El comentario no puede exceder 100 caracteres")
     private String comentario;
 
-    @NotNull(message = "El estado es obligatorio")
-    private Boolean estado;
+    @NotBlank(message = "El estado es obligatorio")
+    private String estado;
 
     @NotNull(message = "El vehículo es obligatorio")
     private Long vehiculoId;
@@ -38,7 +38,7 @@ public class ServicioDTO {
     }
 
     public ServicioDTO(Long id, LocalDateTime fechaEntrada, LocalDateTime fechaSalida,
-                       Double costoTotal, String comentario, Boolean estado,
+                       Double costoTotal, String comentario, String estado,
                        Long vehiculoId, Long mecanicoId, Long tipoServicioId) {
         this.id = id;
         this.fechaEntrada = fechaEntrada;
@@ -92,11 +92,11 @@ public class ServicioDTO {
         this.comentario = comentario;
     }
 
-    public Boolean getEstado() {
+    public String getEstado() {
         return estado;
     }
 
-    public void setEstado(Boolean estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 

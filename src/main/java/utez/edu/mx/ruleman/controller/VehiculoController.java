@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import utez.edu.mx.ruleman.config.MessagesGlobals;
+import utez.edu.mx.ruleman.config.exception.BadRequestException;
+import utez.edu.mx.ruleman.config.exception.ResourceNotFoundException;
 import utez.edu.mx.ruleman.dto.VehiculoDTO;
 import utez.edu.mx.ruleman.mapper.VehiculoMapper;
 import utez.edu.mx.ruleman.model.Vehiculo;
@@ -54,6 +56,25 @@ public class VehiculoController {
         Vehiculo vehiculo = vehiculoService.getVehiculoById(id);
         VehiculoDTO vehiculoDTO = VehiculoMapper.toDTO(vehiculo);
         Message<VehiculoDTO> response = Message.success(HttpStatus.OK, MessagesGlobals.SUCCESS_RETRIEVED, vehiculoDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/cliente/{clienteId}")
+    public ResponseEntity<Message<List<VehiculoDTO>>> getVehiculosByClienteId(@PathVariable Long clienteId) {
+        log.info("GET /api/vehiculos/cliente/{} - Obtener vehículos por ID de cliente", clienteId);
+        List<Vehiculo> vehiculos = vehiculoService.getVehiculosByClienteId(clienteId);
+
+        // 2. Mapea la lista de entidades a una lista de DTOs
+        List<VehiculoDTO> vehiculoDTOs = vehiculos.stream()
+                .map(VehiculoMapper::toDTO)
+                .collect(Collectors.toList());
+
+        Message<List<VehiculoDTO>> response = Message.success(
+                HttpStatus.OK,
+                MessagesGlobals.SUCCESS_LIST_RETRIEVED,
+                vehiculoDTOs
+        );
+
         return ResponseEntity.ok(response);
     }
 

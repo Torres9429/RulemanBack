@@ -2,6 +2,8 @@ package utez.edu.mx.ruleman.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import utez.edu.mx.ruleman.enums.EstadoServicio;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -21,11 +23,12 @@ public class Servicio {
     @Column(name = "costoTotal", nullable = false)
     private double costoTotal;
 
-    @Column(name = "comentario", columnDefinition = "VARCHAR(50)")
+    @Column(name = "comentario", columnDefinition = "VARCHAR(100)")
     private String comentario;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
-    private boolean estado;
+    private EstadoServicio estado;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehiculo_id", nullable = false)
@@ -46,7 +49,7 @@ public class Servicio {
     public Servicio() {
     }
 
-    public Servicio(LocalDateTime fechaEntrada, double costoTotal, boolean estado, Vehiculo vehiculo, TipoServicio tipoServicio) {
+    public Servicio(LocalDateTime fechaEntrada, double costoTotal, EstadoServicio estado, Vehiculo vehiculo, TipoServicio tipoServicio) {
         this.fechaEntrada = fechaEntrada;
         this.costoTotal = costoTotal;
         this.estado = estado;
@@ -94,11 +97,11 @@ public class Servicio {
         this.comentario = comentario;
     }
 
-    public boolean isEstado() {
+    public EstadoServicio getEstado() {
         return estado;
     }
 
-    public void setEstado(boolean estado) {
+    public void setEstado(EstadoServicio estado) {
         this.estado = estado;
     }
 

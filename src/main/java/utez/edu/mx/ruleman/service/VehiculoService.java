@@ -50,6 +50,21 @@ public class VehiculoService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public List<Vehiculo> getVehiculosByClienteId(Long clienteId) {
+        log.info("Obteniendo vehículos para el cliente con ID: {}", clienteId);
+
+        if (clienteId == null || clienteId <= 0) {
+            throw new BadRequestException("El ID del cliente es inválido");
+        }
+
+        if (!usuarioRepository.existsById(clienteId)) {
+            throw new ResourceNotFoundException("No se encontró el cliente con ID: " + clienteId);
+        }
+
+        return vehiculoRepository.findByUsuarioId(clienteId);
+    }
+
     public Vehiculo saveVehiculo(Vehiculo vehiculo) {
         log.info("Intentando guardar vehículo con placa: {}", vehiculo.getPlaca());
 
@@ -167,8 +182,8 @@ public class VehiculoService {
             throw new BadRequestException("El modelo no puede exceder 50 caracteres");
         }
 
-        if (vehiculo.getComentario() != null && vehiculo.getComentario().length() > 50) {
-            throw new BadRequestException("El comentario no puede exceder 50 caracteres");
+        if (vehiculo.getComentario() != null && vehiculo.getComentario().length() > 100) {
+            throw new BadRequestException("El comentario no puede exceder 100 caracteres");
         }
     }
 }

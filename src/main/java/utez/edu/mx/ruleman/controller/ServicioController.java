@@ -4,10 +4,12 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import utez.edu.mx.ruleman.config.MessagesGlobals;
+import utez.edu.mx.ruleman.dto.AsignacionMecanicoDTO;
 import utez.edu.mx.ruleman.dto.ServicioDTO;
 import utez.edu.mx.ruleman.mapper.ServicioMapper;
 import utez.edu.mx.ruleman.model.Servicio;
@@ -72,6 +74,41 @@ public class ServicioController {
         log.info("DELETE /api/servicios/{} - Eliminar servicio", id);
         servicioService.deleteServicio(id);
         Message<Void> response = Message.success(HttpStatus.OK, MessagesGlobals.SUCCESS_DELETED, null);
+        return ResponseEntity.ok(response);
+    }
+    @PatchMapping("/{servicioId}/asignar-mecanico")
+    public ResponseEntity<Message<ServicioDTO>> asignarMecanico(
+            @PathVariable Long servicioId,
+            @Valid @RequestBody AsignacionMecanicoDTO asignacionDTO) {
+        log.info("PATCH /api/servicios/{}/asignar-mecanico - Asignando mecánico", servicioId);
+        Servicio servicioActualizado = servicioService.asignarMecanico(servicioId, asignacionDTO.getMecanicoId());
+
+        ServicioDTO responseDTO = ServicioMapper.toDTO(servicioActualizado);
+        Message<ServicioDTO> response = Message.success(HttpStatus.OK, "Mecánico asignado exitosamente", responseDTO);
+
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/mecanico/{mecanicoId}")
+    public ResponseEntity<Message<List<ServicioDTO>>> getServiciosPorMecanico(
+            @PathVariable Long mecanicoId,
+            @RequestParam(required = false) String estado,
+            @RequestParam(defaultValue = "fechaEntrada,asc") String sort) {
+
+        log.info("GET /api/servicios/mecanico/{} - Obteniendo servicios. Filtro estado: {}, Sort: {}", mecanicoId, estado, sort);
+
+        //Parsear el string de ordenamiento
+        String[] sortParams = sort.split(",");
+        String sortField = sortParams[0];
+        Sort.Direction sortDirection = sortParams[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sortOrder = Sort.by(sortDirection, sortField);
+
+        List<Servicio> servicios = servicioService.getServiciosPorMecanico(mecanicoId, estado, sortOrder);
+
+        //Mapear a DTOs
+        List<ServicioDTO> dtos = servicios.stream().map(ServicioMapper::toDTO).collect(Collectors.toList());
+
+        Message<List<ServicioDTO>> response = Message.success(HttpStatus.OK, "Lista de servicios obtenida", dtos);
+
         return ResponseEntity.ok(response);
     }
 }

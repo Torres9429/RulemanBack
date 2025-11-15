@@ -22,7 +22,7 @@ public class VehiculoDTO {
     @Size(max = 15, message = "La placa no puede exceder 15 caracteres")
     private String placa;
 
-    @Size(max = 50, message = "El comentario no puede exceder 50 caracteres")
+    @Size(max = 100, message = "El comentario no puede exceder 50 caracteres")
     private String comentario;
 
     private Boolean estatus;

@@ -1,6 +1,8 @@
 package utez.edu.mx.ruleman.mapper;
 
+import utez.edu.mx.ruleman.config.exception.BadRequestException;
 import utez.edu.mx.ruleman.dto.ServicioDTO;
+import utez.edu.mx.ruleman.enums.EstadoServicio;
 import utez.edu.mx.ruleman.model.Servicio;
 import utez.edu.mx.ruleman.model.TipoServicio;
 import utez.edu.mx.ruleman.model.Usuario;
@@ -18,7 +20,7 @@ public class ServicioMapper {
                 servicio.getFechaSalida(),
                 servicio.getCostoTotal(),
                 servicio.getComentario(),
-                servicio.isEstado(),
+                servicio.getEstado() != null ? servicio.getEstado().name() : null,
                 servicio.getVehiculo() != null ? servicio.getVehiculo().getId() : null,
                 servicio.getMecanico() != null ? servicio.getMecanico().getId() : null,
                 servicio.getTipoServicio() != null ? servicio.getTipoServicio().getId() : null
@@ -35,7 +37,16 @@ public class ServicioMapper {
         servicio.setFechaSalida(dto.getFechaSalida());
         servicio.setCostoTotal(dto.getCostoTotal());
         servicio.setComentario(dto.getComentario());
-        servicio.setEstado(dto.getEstado() != null ? dto.getEstado() : true);
+
+        if (dto.getEstado() != null && !dto.getEstado().trim().isEmpty()) {
+            try {
+                //valueOf para convertir el String al enum correspondiente
+                servicio.setEstado(EstadoServicio.valueOf(dto.getEstado().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                // Si es un estado inválido se lanza un error
+                throw new BadRequestException("El valor de estado '" + dto.getEstado() + "' no es válido.");
+            }
+        }
 
         if (dto.getVehiculoId() != null) {
             Vehiculo vehiculo = new Vehiculo();
@@ -75,8 +86,12 @@ public class ServicioMapper {
 
         servicio.setComentario(dto.getComentario());
 
-        if (dto.getEstado() != null) {
-            servicio.setEstado(dto.getEstado());
+        if (dto.getEstado() != null && !dto.getEstado().trim().isEmpty()) {
+            try {
+                servicio.setEstado(EstadoServicio.valueOf(dto.getEstado().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("El valor de estado '" + dto.getEstado() + "' no es válido.");
+            }
         }
 
         if (dto.getVehiculoId() != null) {
