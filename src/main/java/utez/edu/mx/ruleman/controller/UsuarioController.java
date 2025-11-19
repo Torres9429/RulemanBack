@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/usuarios")
 @CrossOrigin(origins = "*")
 public class UsuarioController {
-
     private static final Logger log = LoggerFactory.getLogger(UsuarioController.class);
 
     @Autowired

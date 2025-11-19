@@ -4,12 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import utez.edu.mx.ruleman.config.MessagesGlobals;
 import utez.edu.mx.ruleman.config.exception.BadRequestException;
 import utez.edu.mx.ruleman.config.exception.ConflictException;
 import utez.edu.mx.ruleman.config.exception.ResourceNotFoundException;
+import utez.edu.mx.ruleman.dto.CambiarContrasenaDTO;
 import utez.edu.mx.ruleman.model.Usuario;
 import utez.edu.mx.ruleman.repository.UsuarioRepository;
 import utez.edu.mx.ruleman.repository.RolRepository;
@@ -20,7 +22,6 @@ import java.util.regex.Pattern;
 @Service
 @Transactional
 public class UsuarioService {
-
     private static final Logger log = LoggerFactory.getLogger(UsuarioService.class);
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
@@ -29,6 +30,13 @@ public class UsuarioService {
 
     @Autowired
     private RolRepository rolRepository;
+
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
+
+    public UsuarioService(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Transactional(readOnly = true)
     public List<Usuario> getAllUsuarios() {
@@ -90,6 +98,8 @@ public class UsuarioService {
             throw new ConflictException(MessagesGlobals.ERROR_USUARIO_CORREO_DUPLICADO);
         }
 
+        // Hashear la contraseña
+        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         try {
             Usuario savedUsuario = usuarioRepository.save(usuario);
             log.info("Usuario guardado exitosamente con ID: {}", savedUsuario.getId());
@@ -133,7 +143,7 @@ public class UsuarioService {
         existingUsuario.setEstatus(usuarioDetails.isEstatus());
 
         if (usuarioDetails.getContrasena() != null && !usuarioDetails.getContrasena().trim().isEmpty()) {
-            existingUsuario.setContrasena(usuarioDetails.getContrasena());
+            existingUsuario.setContrasena(passwordEncoder.encode(usuarioDetails.getContrasena()));
         }
 
         try {
@@ -158,6 +168,24 @@ public class UsuarioService {
             log.error("Error de integridad al eliminar usuario: {}", ex.getMessage());
             throw new ConflictException("No se puede eliminar el usuario porque tiene vehículos o servicios asociados");
         }
+    }
+    public void cambiarContrasenaInterno(Long id, CambiarContrasenaDTO cambiarContrasenaDTO) {
+        log.info("Intentando cambiar contrasena del usuario con ID: {}", id);
+        Usuario usuario = getUsuarioById(id);
+
+        if (!passwordEncoder.matches(cambiarContrasenaDTO.getContrasenaActual(), usuario.getContrasena())) {
+            log.warn("Contrasena actual no coincide para el usuario ID: {}", id);
+            throw new BadRequestException("La contrasena actual no coincide");
+        }
+        try {
+            usuario.setContrasena(passwordEncoder.encode(cambiarContrasenaDTO.getNuevaContrasena()));            usuarioRepository.save(usuario);
+            log.info("Contrasena cambiada exitosamente con ID: {}", id);
+        } catch (DataIntegrityViolationException ex) {
+            log.error("Error de integridad al cambiar contrasena: {}", ex.getMessage());
+            throw new ConflictException(MessagesGlobals.ERROR_DATA_INTEGRITY);
+        }
+
+
     }
 
     private void validateUsuario(Usuario usuario) {
